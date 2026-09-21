@@ -19,7 +19,8 @@ int sceLibcHeapSize = 4 * 1024 * 1024;
 #endif
 
 so_module so_mod;
-
+typedef (*nativeTouches_func_t) (JNIEnv * env, jobject thiz, jint id, jfloat x, jfloat y);
+nativeTouches_func_t nativeTouchesBegin,nativeTouchesEnd;
 
 int main() {
     soloader_init_all();
@@ -31,9 +32,44 @@ int main() {
 
 #ifndef NDK_PORT
     // ... do some initialization
+    void* (*nativeSetApkPath)(void*,void*,char*)  = so_symbol(&so_mod, "Java_org_cocos2dx_lib_Cocos2dxHelper_nativeSetApkPath");
+    if (nativeSetApkPath == NULL) {
+        sceClibPrintf("Error: Could not find nativeSetApkPath symbol!\n");
+        return;
+    }
+    
+    nativeSetApkPath(NULL,NULL,jni->NewStringUTF(&jni, DATA_PATH "asset.apk"));
+
+    const int width=960, height=544;
+    void* (*nativeInit)(void*,void*,int,int)  = so_symbol(&so_mod, "Java_org_cocos2dx_lib_Cocos2dxRenderer_nativeInit");
+    if (nativeInit == NULL) {
+        sceClibPrintf("Error: Could not find nativeInit symbol!\n");
+        return;
+    }
+    nativeInit(NULL, NULL, width, height);
+
+    void* (*nativeRender)(void*)  = so_symbol(&so_mod, "Java_org_cocos2dx_lib_Cocos2dxRenderer_nativeRender");
+    if (nativeRender == NULL) {
+        sceClibPrintf("Error: Could not find nativeRender symbol!\n");
+        return;
+    }
+
+    nativeTouchesBegin = so_symbol(&so_mod, "Java_org_cocos2dx_lib_Cocos2dxRenderer_nativeTouchesBegin");
+    if (nativeTouchesBegin == NULL) {
+        sceClibPrintf("Error: Could not find nativeTouchesBegin symbol!\n");
+        return;
+    }
+    
+    nativeTouchesEnd  = so_symbol(&so_mod, "Java_org_cocos2dx_lib_Cocos2dxRenderer_nativeTouchesEnd");
+    if (nativeTouchesEnd == NULL) {
+        sceClibPrintf("Error: Could not find nativeTouchesEnd symbol!\n");
+        return;
+    }
 
     while (1) {
         // ... render call
+	    nativeRender(NULL);
+        controls_poll();
         gl_swap();
     }
 #else
@@ -76,6 +112,19 @@ void controls_handler_key(int32_t keycode, ControlsAction action) {
 
 void controls_handler_touch(int32_t id, float x, float y, ControlsAction action) {
     // Call into the .so here
+    switch(action){
+        case CONTROLS_ACTION_UP:{
+            nativeTouchesEnd(NULL,NULL,id,x,y);
+        }break;
+
+        case CONTROLS_ACTION_DOWN:{
+            nativeTouchesBegin(NULL,NULL,id,x,y);
+        }break;
+
+        case CONTROLS_ACTION_MOVE:{
+            sceClibPrintf("Not handle, move action\n");
+        }break;
+    }
 }
 
 void controls_handler_analog(ControlsStickId which, float x, float y, ControlsAction action) {

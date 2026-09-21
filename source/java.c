@@ -2,11 +2,30 @@
 #include <falso_jni/FalsoJNI_Impl.h>
 #include <falso_jni/FalsoJNI_Logger.h>
 
+jstring getDeviceModel(jmethodID id, va_list args) {
+    const char * phoneModel = "PCH-2000";
+    
+    return jni->NewStringUTF(&jni, phoneModel);
+}
+
+jstring getCocos2dxWritablePath(jmethodID id, va_list args) {
+	const char dpath[] = "ux0:data/narutoSenki";
+    return jni->NewStringUTF(&jni, dpath);
+}
+
+void setAnimationInterval(jmethodID id, va_list args) {
+    return;
+}
+
 /*
  * JNI Methods
 */
 
-NameToMethodID nameToMethodId[] = {};
+NameToMethodID nameToMethodId[] = {
+    { 100, "getDeviceModel", METHOD_TYPE_OBJECT },
+	{ 101, "setAnimationInterval", METHOD_TYPE_VOID },
+	{ 102, "getCocos2dxWritablePath", METHOD_TYPE_OBJECT },
+};
 
 MethodsBoolean methodsBoolean[] = {};
 MethodsByte methodsByte[] = {};
@@ -15,9 +34,14 @@ MethodsDouble methodsDouble[] = {};
 MethodsFloat methodsFloat[] = {};
 MethodsInt methodsInt[] = {};
 MethodsLong methodsLong[] = {};
-MethodsObject methodsObject[] = {};
+MethodsObject methodsObject[] = {
+	{ 100, getDeviceModel },
+	{ 102, getCocos2dxWritablePath },
+};
 MethodsShort methodsShort[] = {};
-MethodsVoid methodsVoid[] = {};
+MethodsVoid methodsVoid[] = {
+	{ 101, setAnimationInterval},
+};
 
 /*
  * JNI Fields
