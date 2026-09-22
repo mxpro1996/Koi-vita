@@ -11,20 +11,23 @@ project(so_loader C CXX)
 include("${VITASDK}/share/vita.cmake" REQUIRED)
 
 # Vita application configuration
-set(VITA_APP_NAME "so-loader")
-set(VITA_TITLEID "SLDR00000")
-set(VITA_VPKNAME "so_loader")
+set(VITA_APP_NAME "detective")
+set(VITA_TITLEID "SLDR00002")
+set(VITA_VPKNAME "detective")
 set(VITA_VERSION "01.00")
 set(VITA_MKSFOEX_FLAGS "-d ATTRIBUTE2=12")
 
 # Optional: used for "send" and "dump" targets
-set(PSVITAIP "192.168.0.198" CACHE STRING "PSVita IP (for FTP access)")
+set(PSVITAIP "192.168.10.58" CACHE STRING "PSVita IP (for FTP access)")
 set(PARSECOREPATH "$ENV{PARSECOREPATH}" CACHE STRING "vita-parse-core main.py")
 
 # Game-specific definitions
-set(DATA_PATH "ux0:data/narutoSenki/") # Path to data (with trailing /)
+set(DATA_PATH "ux0:data/detective/") # Path to data (with trailing /)
+set(SO_PATH_LIBCOCOS2D "${DATA_PATH}lib/libcocos2d.so") # Path to .so
+set(SO_PATH_LIBCOCOSDEN "${DATA_PATH}lib/libcocosdenshion.so") # Path to .so
+set(SO_PATH_LIBGAME_LOGIC "${DATA_PATH}lib/libgame_logic.so") # Path to .so
 set(SO_PATH "${DATA_PATH}lib/libgame.so") # Path to .so
-add_definitions(-DDATA_PATH="${DATA_PATH}" -DSO_PATH="${SO_PATH}")
+add_definitions(-DDATA_PATH="${DATA_PATH}" -DSO_PATH="${SO_PATH}" -DSO_PATH_LIBCOCOS2D="${SO_PATH_LIBCOCOS2D}" -DSO_PATH_LIBGAME_LOGIC="${SO_PATH_LIBGAME_LOGIC}" -DSO_PATH_LIBCOCOSDEN="${SO_PATH_LIBCOCOSDEN}")
 
 # Port type
 option(NDK_PORT "This should be on if the game is done with Android NDK (has an android_main entry point)" OFF)
@@ -98,6 +101,7 @@ set(SOURCES
     source/dynlib.c
     source/java.c
     source/patch.c
+    source/bmfont.c
     source/reimpl/bits/_ctype.c
     source/reimpl/errno.c
     source/reimpl/io.c
@@ -183,6 +187,10 @@ target_include_directories(${CMAKE_PROJECT_NAME}
                            PUBLIC ${CMAKE_SOURCE_DIR}/source
                            )
 
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(FREETYPE REQUIRED freetype2)
+target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${FREETYPE_INCLUDE_DIRS})
+
 if(NDK_PORT)
   target_link_libraries(${CMAKE_PROJECT_NAME}
                         FalsoNDK
@@ -191,6 +199,7 @@ endif()
 
 target_link_libraries(${CMAKE_PROJECT_NAME}
                       -Wl,--whole-archive pthread -Wl,--no-whole-archive
+                      ${FREETYPE_LIBRARIES}
                       OpenSLES
                       sndfile
                       mp3lame
@@ -229,6 +238,8 @@ target_link_libraries(${CMAKE_PROJECT_NAME}
                       ScePower_stub
                       SceTouch_stub
                       SceVshBridge_stub
+                      SceSqlite_stub
+                      SceSysmodule_stub
                       )
 
 vita_create_self(eboot.bin ${CMAKE_PROJECT_NAME} UNSAFE NOASLR)
@@ -246,8 +257,7 @@ vita_create_vpk(${VITA_VPKNAME}.vpk ${VITA_TITLEID} eboot.bin
                 )
 
 add_custom_target(send
-                  COMMAND echo destroy | nc ${PSVITAIP} 1338
-                  COMMAND echo destroy | nc ${PSVITAIP} 1338
+                  COMMAND echo quit all | nc ${PSVITAIP} 1338
                   COMMAND curl -T eboot.bin ftp://${PSVITAIP}:1337/ux0:/app/${VITA_TITLEID}/
                   COMMAND echo launch ${VITA_TITLEID} | nc ${PSVITAIP} 1338
                   DEPENDS ${VITA_VPKNAME}.vpk-vpk
@@ -261,6 +271,7 @@ add_custom_target(send_kvdb
                   )
 
 add_custom_target(dump
+                  COMMAND echo exp:${PARSECOREPATH}
                   COMMAND ${CMAKE_SOURCE_DIR}/extras/scripts/get_dump.sh ${PSVITAIP}
                   COMMAND python3 ${PARSECOREPATH} coredump ${CMAKE_PROJECT_NAME}
                   )

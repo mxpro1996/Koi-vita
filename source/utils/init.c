@@ -32,6 +32,10 @@
 #define LOAD_ADDRESS 0x98000000
 
 extern so_module so_mod;
+extern so_module so_mod_libcocos2d;
+extern so_module so_mod_libcocosden;
+extern so_module so_mod_libgame_logic;
+
 
 void soloader_init_all() {
 	// Launch `app0:configurator.bin` on `-config` init param
@@ -69,10 +73,39 @@ void soloader_init_all() {
                     "sure that you have %s file exactly at that path.", SO_PATH);
     }
 
-    if (so_file_load(&so_mod, SO_PATH, LOAD_ADDRESS) < 0) {
-        l_fatal("SO could not be loaded.");
+    // 2MB
+    if (so_file_load(&so_mod_libcocos2d, SO_PATH_LIBCOCOS2D, LOAD_ADDRESS) < 0)
+        fatal_error("Error: could not load %s.", SO_PATH_LIBCOCOS2D);
+    so_relocate(&so_mod_libcocos2d);
+    l_info("Resolving imports for %s", SO_PATH_LIBCOCOS2D);
+    resolve_imports(&so_mod_libcocos2d);
+    so_flush_caches(&so_mod_libcocos2d);
+    so_initialize(&so_mod_libcocos2d);
+    l_info("%s loaded successfully.", SO_PATH_LIBCOCOS2D);
+
+    // 128k
+    if (so_file_load(&so_mod_libcocosden, SO_PATH_LIBCOCOSDEN, LOAD_ADDRESS + 0x180000) < 0)
+        fatal_error("Error: could not load %s.", SO_PATH_LIBCOCOSDEN);
+    so_relocate(&so_mod_libcocosden);
+    l_info("Resolving imports for %s", SO_PATH_LIBCOCOSDEN);
+    resolve_imports(&so_mod_libcocosden);
+    so_flush_caches(&so_mod_libcocosden);
+    so_initialize(&so_mod_libcocosden);
+    l_info("%s loaded successfully.", SO_PATH_LIBCOCOSDEN);
+
+    // 2M
+    if (so_file_load(&so_mod_libgame_logic, SO_PATH_LIBGAME_LOGIC, LOAD_ADDRESS+ 0x200000 ) < 0)
+        fatal_error("Error: could not load %s.", SO_PATH_LIBGAME_LOGIC);
+    so_relocate(&so_mod_libgame_logic);
+    l_info("Resolving imports for %s", SO_PATH_LIBGAME_LOGIC);
+    resolve_imports(&so_mod_libgame_logic);
+    so_flush_caches(&so_mod_libgame_logic);
+    so_initialize(&so_mod_libgame_logic);
+    l_info("%s loaded successfully.", SO_PATH_LIBGAME_LOGIC);
+
+    // end
+    if (so_file_load(&so_mod, SO_PATH, LOAD_ADDRESS + 0x4000000) < 0)
         fatal_error("Error: could not load %s.", SO_PATH);
-    }
 
     settings_load();
     l_success("Settings loaded.");
