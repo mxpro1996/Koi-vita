@@ -112,6 +112,7 @@ set(SOURCES
     source/utils/logger.c
     source/utils/settings.c
     source/utils/utils.c
+    source/audio.cpp
     lib/falso_jni/FalsoJNI.c
     lib/falso_jni/FalsoJNI_ImplBridge.c
     lib/falso_jni/FalsoJNI_Logger.c
@@ -192,6 +193,7 @@ endif()
 target_link_libraries(${CMAKE_PROJECT_NAME}
                       -Wl,--whole-archive pthread -Wl,--no-whole-archive
                       OpenSLES
+                      soloud
                       sndfile
                       mp3lame
                       mpg123

@@ -2,10 +2,19 @@
 #include <falso_jni/FalsoJNI_Impl.h>
 #include <falso_jni/FalsoJNI_Logger.h>
 
+#include "audio.h"
+
+
 jstring getDeviceModel(jmethodID id, va_list args) {
     const char * phoneModel = "PCH-2000";
     
     return jni->NewStringUTF(&jni, phoneModel);
+}
+
+void setAnimationInterval(jmethodID id, va_list args)
+{
+	jdouble interval = va_arg(args, jdouble);
+	fjni_logv_info("[FalsoJNI] setAnimationInterval(%f) called", (float)interval);
 }
 
 jstring getCocos2dxWritablePath(jmethodID id, va_list args) {
@@ -13,34 +22,83 @@ jstring getCocos2dxWritablePath(jmethodID id, va_list args) {
     return jni->NewStringUTF(&jni, dpath);
 }
 
-void setAnimationInterval(jmethodID id, va_list args) {
-    return;
-}
-
 /*
  * JNI Methods
 */
 
 NameToMethodID nameToMethodId[] = {
-    { 100, "getDeviceModel", METHOD_TYPE_OBJECT },
-	{ 101, "setAnimationInterval", METHOD_TYPE_VOID },
-	{ 102, "getCocos2dxWritablePath", METHOD_TYPE_OBJECT },
+    { 98, "getDeviceModel", METHOD_TYPE_OBJECT },
+	{ 99, "getCocos2dxWritablePath", METHOD_TYPE_OBJECT },
+	{100, "setAnimationInterval", METHOD_TYPE_VOID},
+	// sound shit
+	{108, "preloadEffect", METHOD_TYPE_VOID},
+	{122, "unloadEffect", METHOD_TYPE_VOID},
+	{123, "playEffect", METHOD_TYPE_INT},
+	{124, "setEffectVolume", METHOD_TYPE_VOID},
+	{125, "setEffectRate", METHOD_TYPE_VOID},
+	{126, "stopEffect", METHOD_TYPE_VOID},
+	{127, "pauseEffect", METHOD_TYPE_VOID},
+	{128, "resumeEffect", METHOD_TYPE_VOID},
+	{129, "pauseAllEffects", METHOD_TYPE_VOID},
+	{130, "resumeAllEffects", METHOD_TYPE_VOID},
+	{131, "stopAllEffects", METHOD_TYPE_VOID},
+	{132, "getEffectsVolume", METHOD_TYPE_FLOAT},
+	{133, "setEffectsVolume", METHOD_TYPE_VOID},
+	// music shit
+	{200, "preloadBackgroundMusic", METHOD_TYPE_VOID},
+	{201, "playBackgroundMusic", METHOD_TYPE_VOID},
+	{202, "stopBackgroundMusic", METHOD_TYPE_VOID},
+	{203, "pauseBackgroundMusic", METHOD_TYPE_VOID},
+	{204, "resumeBackgroundMusic", METHOD_TYPE_VOID},
+	{205, "rewindBackgroundMusic", METHOD_TYPE_VOID},
+	{206, "isBackgroundMusicPlaying", METHOD_TYPE_BOOLEAN},
+	{207, "endBackgroundMusic", METHOD_TYPE_VOID},
+	{208, "getBackgroundVolume", METHOD_TYPE_FLOAT},
+	{209, "setBackgroundMusicVolume", METHOD_TYPE_VOID},
+
 };
 
-MethodsBoolean methodsBoolean[] = {};
+MethodsBoolean methodsBoolean[] = {
+	{206, isBackgroundMusicPlaying},
+};
 MethodsByte methodsByte[] = {};
 MethodsChar methodsChar[] = {};
 MethodsDouble methodsDouble[] = {};
-MethodsFloat methodsFloat[] = {};
-MethodsInt methodsInt[] = {};
+MethodsFloat methodsFloat[] = {
+	{132, getEffectsVolume},
+	{208, getBackgroundVolume},
+};
+MethodsInt methodsInt[] = {
+	{123, playEffect},
+};
+
 MethodsLong methodsLong[] = {};
 MethodsObject methodsObject[] = {
-	{ 100, getDeviceModel },
-	{ 102, getCocos2dxWritablePath },
+	{ 98, getDeviceModel },
+	{ 99, getCocos2dxWritablePath },
 };
 MethodsShort methodsShort[] = {};
 MethodsVoid methodsVoid[] = {
-	{ 101, setAnimationInterval},
+	{100, setAnimationInterval},
+	{108, preloadEffect},
+	{122, unloadEffect},
+	{124, setEffectVolume},
+	{125, setEffectRate},
+	{126, stopEffect},
+	{127, pauseEffect},
+	{128, resumeEffect},
+	{129, pauseAllEffects},
+	{130, resumeAllEffects},
+	{131, stopAllEffects},
+	{133, setEffectsVolume},
+	{200, preloadBackgroundMusic},
+	{201, playBackgroundMusic},
+	{202, stopBackgroundMusic},
+	{203, pauseBackgroundMusic},
+	{204, resumeBackgroundMusic},
+	{205, rewindBackgroundMusic},
+	{207, endBackgroundMusic},
+	{209, setBackgroundVolume},
 };
 
 /*
