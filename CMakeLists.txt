@@ -18,12 +18,12 @@ set(VITA_VERSION "01.00")
 set(VITA_MKSFOEX_FLAGS "-d ATTRIBUTE2=12")
 
 # Optional: used for "send" and "dump" targets
-set(PSVITAIP "192.168.0.198" CACHE STRING "PSVita IP (for FTP access)")
+set(PSVITAIP "192.168.10.35" CACHE STRING "PSVita IP (for FTP access)")
 set(PARSECOREPATH "$ENV{PARSECOREPATH}" CACHE STRING "vita-parse-core main.py")
 
 # Game-specific definitions
 set(DATA_PATH "ux0:data/narutoSenki/") # Path to data (with trailing /)
-set(SO_PATH "${DATA_PATH}lib/libgame.so") # Path to .so
+set(SO_PATH "${DATA_PATH}lib/libcocos2dcpp.so") # Path to .so
 add_definitions(-DDATA_PATH="${DATA_PATH}" -DSO_PATH="${SO_PATH}")
 
 # Port type
@@ -194,6 +194,7 @@ target_link_libraries(${CMAKE_PROJECT_NAME}
                       -Wl,--whole-archive pthread -Wl,--no-whole-archive
                       OpenSLES
                       soloud
+                      freetype
                       sndfile
                       mp3lame
                       mpg123
@@ -248,8 +249,7 @@ vita_create_vpk(${VITA_VPKNAME}.vpk ${VITA_TITLEID} eboot.bin
                 )
 
 add_custom_target(send
-                  COMMAND echo destroy | nc ${PSVITAIP} 1338
-                  COMMAND echo destroy | nc ${PSVITAIP} 1338
+                  COMMAND echo ${PSVITAIP} `pwd` ${VITA_TITLEID}
                   COMMAND curl -T eboot.bin ftp://${PSVITAIP}:1337/ux0:/app/${VITA_TITLEID}/
                   COMMAND echo launch ${VITA_TITLEID} | nc ${PSVITAIP} 1338
                   DEPENDS ${VITA_VPKNAME}.vpk-vpk

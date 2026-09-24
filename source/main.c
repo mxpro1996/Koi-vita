@@ -12,11 +12,15 @@
 #include <falso_ndk/FalsoNDK.h>
 #endif
 
+//#include <freetype2/ftbuild.h>
+
 int _newlib_heap_size_user = 256 * 1024 * 1024;
 
 #ifdef USE_SCELIBC_IO
 int sceLibcHeapSize = 4 * 1024 * 1024;
 #endif
+
+
 
 so_module so_mod;
 typedef (*nativeTouches_func_t) (JNIEnv * env, jobject thiz, jint id, jfloat x, jfloat y);
@@ -65,6 +69,15 @@ int main() {
         sceClibPrintf("Error: Could not find nativeTouchesEnd symbol!\n");
         return;
     }
+
+    // void (*nativeSetContext) (JNIEnv*  env, jobject thiz, jobject context, jobject assetManager) = so_symbol(&so_mod, "Java_org_cocos2dx_lib_Cocos2dxHelper_nativeSetContext");
+    // if (nativeSetContext == NULL) {
+    //     sceClibPrintf("Error: Could not find nativeSetContext symbol!\n");
+    //     return;
+    // }    
+    // nativeSetContext(&jni,NULL,NULL,NULL);
+    
+
 
     while (1) {
         // ... render call
