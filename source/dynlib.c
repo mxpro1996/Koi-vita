@@ -129,6 +129,11 @@ extern const char *BIONIC_ctype_;
 extern const short *BIONIC_tolower_tab_;
 extern const short *BIONIC_toupper_tab_;
 
+char *hook_getcwd(char *buffer, int maxlen){
+        memcpy(buffer, DATA_PATH, maxlen);
+        return buffer;
+}
+
 static FILE __sF_fake[3];
 
 void *dlsym_soloader(void * handle, const char * symbol);
@@ -492,7 +497,7 @@ so_default_dynlib default_dynlib[] = {
         { "fseeko", (uintptr_t)&fseeko }, // TODO: wrap normal fseek for SceLibc version?
         { "ftello", (uintptr_t)&ftello },
         { "ftruncate", (uintptr_t)&ftruncate },
-        { "getcwd", (uintptr_t)&getcwd },
+        { "getcwd", (uintptr_t)&hook_getcwd },
         { "lseek", (uintptr_t)&lseek },
         { "lseek64", (uintptr_t)&ret0 }, // TODO: implement or stub with warning
         { "lstat", (uintptr_t)&lstat },

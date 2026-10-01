@@ -19,7 +19,7 @@ void setAnimationInterval(jmethodID id, va_list args)
 
 jstring getCocos2dxWritablePath(jmethodID id, va_list args) {
 	const char dpath[] = "ux0:data/narutoSenki";
-    return jni->NewStringUTF(&jni, dpath);
+    return jni->NewStringUTF(&jni, "");
 }
 
 /*
