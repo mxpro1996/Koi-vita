@@ -19,14 +19,46 @@ void setAnimationInterval(jmethodID id, va_list args)
 
 jstring getCocos2dxWritablePath(jmethodID id, va_list args) {
 	const char dpath[] = "ux0:data/narutoSenki";
-    return jni->NewStringUTF(&jni, "");
+    return jni->NewStringUTF(&jni,"");
 }
+
+/*
+	if (!JniHelper::getMethodInfo_DefaultClassLoader(_m,
+														"java/lang/ClassLoader",
+														"loadClass",
+														"(Ljava/lang/String;)Ljava/lang/Class;")) {
+		return false;
+	}
+*/
+jclass loadClass(jmethodID id, va_list args){
+	// class stubReturn
+	const char *className = jni->GetStringChars(&jni, va_arg(args, jstring), NULL);
+	return jni->FindClass(&jni, className);
+}
+
+/*
+	if (!JniHelper::getMethodInfo_DefaultClassLoader(_getclassloaderMethod,
+														"android/content/Context",
+														"getClassLoader",
+														"()Ljava/lang/ClassLoader;")) {
+		return false;
+	}
+
+*/
+jobject getClassLoader(jmethodID id, va_list args){
+	// classloader ret
+	return jni->NewStringUTF(&jni, "classLoaderStub");
+}
+
+
 
 /*
  * JNI Methods
 */
 
 NameToMethodID nameToMethodId[] = {
+    { 96, "getClassLoader", METHOD_TYPE_OBJECT },
+    { 97, "loadClass", METHOD_TYPE_OBJECT },
     { 98, "getDeviceModel", METHOD_TYPE_OBJECT },
 	{ 99, "getCocos2dxWritablePath", METHOD_TYPE_OBJECT },
 	{100, "setAnimationInterval", METHOD_TYPE_VOID},
@@ -74,6 +106,8 @@ MethodsInt methodsInt[] = {
 
 MethodsLong methodsLong[] = {};
 MethodsObject methodsObject[] = {
+	{ 96, getClassLoader },
+    { 97, loadClass },
 	{ 98, getDeviceModel },
 	{ 99, getCocos2dxWritablePath },
 };

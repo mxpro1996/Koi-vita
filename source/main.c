@@ -12,6 +12,7 @@
 #include <falso_ndk/FalsoNDK.h>
 #endif
 
+#include "reimpl/asset_manager.h"
 //#include <freetype2/ftbuild.h>
 
 int _newlib_heap_size_user = 256 * 1024 * 1024;
@@ -41,8 +42,16 @@ int main() {
         sceClibPrintf("Error: Could not find nativeSetApkPath symbol!\n");
         return;
     }
-    
     nativeSetApkPath(NULL,NULL,jni->NewStringUTF(&jni, DATA_PATH "asset.apk"));
+
+    AAssetManager *assetManager =  AAssetManager_create();
+    void (*nativeSetContext) (JNIEnv*  env, jobject thiz, jobject context, jobject assetManager) = so_symbol(&so_mod, "Java_org_cocos2dx_lib_Cocos2dxHelper_nativeSetContext");
+    if (nativeSetContext == NULL) {
+        sceClibPrintf("Error: Could not find nativeSetContext symbol!\n");
+        return;
+    }    
+    jstring activityinstance = jni->NewStringUTF(&jni,"activityStub"); 
+    nativeSetContext(&jni,NULL,activityinstance,assetManager);
 
     const int width=960, height=544;
     void* (*nativeInit)(void*,void*,int,int)  = so_symbol(&so_mod, "Java_org_cocos2dx_lib_Cocos2dxRenderer_nativeInit");
@@ -69,13 +78,6 @@ int main() {
         sceClibPrintf("Error: Could not find nativeTouchesEnd symbol!\n");
         return;
     }
-
-    // void (*nativeSetContext) (JNIEnv*  env, jobject thiz, jobject context, jobject assetManager) = so_symbol(&so_mod, "Java_org_cocos2dx_lib_Cocos2dxHelper_nativeSetContext");
-    // if (nativeSetContext == NULL) {
-    //     sceClibPrintf("Error: Could not find nativeSetContext symbol!\n");
-    //     return;
-    // }    
-    // nativeSetContext(&jni,NULL,NULL,NULL);
     
 
 
@@ -135,7 +137,7 @@ void controls_handler_touch(int32_t id, float x, float y, ControlsAction action)
         }break;
 
         case CONTROLS_ACTION_MOVE:{
-            sceClibPrintf("Not handle, move action\n");
+            //sceClibPrintf("Not handle, move action\n");
         }break;
     }
 }
