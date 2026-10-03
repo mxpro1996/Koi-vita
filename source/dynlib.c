@@ -129,11 +129,6 @@ extern const char *BIONIC_ctype_;
 extern const short *BIONIC_tolower_tab_;
 extern const short *BIONIC_toupper_tab_;
 
-char *hook_getcwd(char *buffer, int maxlen){
-        memcpy(buffer, DATA_PATH, maxlen);
-        return buffer;
-}
-
 static FILE __sF_fake[3];
 
 void *dlsym_soloader(void * handle, const char * symbol);
@@ -421,6 +416,8 @@ so_default_dynlib default_dynlib[] = {
         { "execv", (uintptr_t)&ret0 },
         { "fclose", (uintptr_t)&fclose_soloader },
         { "fcntl", (uintptr_t)&fcntl_soloader },
+        { "geteuid", (uintptr_t)&geteuid_soloader },
+        { "fchown", (uintptr_t)&fchown_soloader },        
         { "fopen", (uintptr_t)&fopen_soloader },
         { "fstat", (uintptr_t)&fstat_soloader },
         { "fsync", (uintptr_t)&fsync_soloader },
@@ -497,7 +494,7 @@ so_default_dynlib default_dynlib[] = {
         { "fseeko", (uintptr_t)&fseeko }, // TODO: wrap normal fseek for SceLibc version?
         { "ftello", (uintptr_t)&ftello },
         { "ftruncate", (uintptr_t)&ftruncate },
-        { "getcwd", (uintptr_t)&hook_getcwd },
+        { "getcwd", (uintptr_t)&getcwd },
         { "lseek", (uintptr_t)&lseek },
         { "lseek64", (uintptr_t)&ret0 }, // TODO: implement or stub with warning
         { "lstat", (uintptr_t)&lstat },

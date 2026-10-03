@@ -90,6 +90,14 @@ int closedir_soloader(DIR *dir);
 
 int fcntl_soloader(int fd, int cmd, ...);
 
+int fsync_soloader(int fd);
+
+char *getcwd_soloader(char *buffer, int maxlen);
+
+int geteuid_soloader(void);
+
+int fchown_soloader(int fd, uid_t owner, gid_t group);
+
 int ioctl_soloader(int fd, int request, ... /* arg */);
 
 int fsync_soloader(int fd);

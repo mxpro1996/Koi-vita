@@ -173,6 +173,25 @@ int fcntl_soloader(int fd, int cmd, ...) {
     return 0;
 }
 
+char *getcwd_soloader(char *buffer, int maxlen){
+        l_info("getcwd_soloader called");
+        memcpy(buffer, DATA_PATH, maxlen);
+        //memset(buffer,0,maxlen);
+        return buffer;
+}
+
+int geteuid_soloader(void)
+{
+    l_warn("geteuid: not implemented");
+    return 0;
+}
+
+int fchown_soloader(int fd, uid_t owner, gid_t group)
+{
+    l_warn("fchown(%d, %u, %u)", fd, owner, group);
+    return 0;
+}
+
 int ioctl_soloader(int fd, int request, ...) {
     l_warn("ioctl(%i, %i, ...): not implemented", fd, request);
     return 0;
